@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Countdown Timer</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .timer { font-size: 2em; }
+        .animal { margin: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Learning Countdown Timer</h1>
+    <div id="countdown" class="timer">00:00:00</div>
+    <div>
+        <button onclick="startTimer()">Start Learning</button>
+        <button onclick="resetTimer()">Reset</button>
+    </div>
+    <div id="animal" class="animal"></div>
+    <div id="message"></div>
+    
+    <h2>Study History</h2>
+    <ul id="history"></ul>
+    
+    <h2>Total Study Time: <span id="totalTime">0</span> minutes</h2>
+    
+    <script>
+        let totalStudyMinutes = 0;
+        let timer;
+        let remainingTime;
+        
+        function startTimer() {
+            remainingTime = 25 * 60; // 25 minutes
+            document.getElementById('history').innerHTML += '<li>Started studying!</li>';
+            updateCountdown();
+            timer = setInterval(updateCountdown, 1000);
+        }
+
+        function updateCountdown() {
+            if (remainingTime <= 0) {
+                clearInterval(timer);
+                document.getElementById('message').textContent = "Well done! Time to take a break.";
+                totalStudyMinutes += 25;
+                document.getElementById('totalTime').textContent = totalStudyMinutes;
+                return;
+            }
+            const hours = String(Math.floor(remainingTime / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((remainingTime % 3600) / 60)).padStart(2, '0');
+            const seconds = String(remainingTime % 60).padStart(2, '0');
+            document.getElementById('countdown').textContent = `${hours}:${minutes}:${seconds}`;
+            remainingTime--;
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            remainingTime = 0;
+            document.getElementById('countdown').textContent = "00:00:00";
+            document.getElementById('message').textContent = "";
+        }
+
+        function getRandomAnimal() {
+            const animals = ["🐶", "🐱", "🐰", "🦁", "🐵"];
+            return animals[Math.floor(Math.random() * animals.length)];
+        }
+
+        document.getElementById('animal').textContent = getRandomAnimal();
+    </script>
+</body>
+</html>
