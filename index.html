@@ -3,57 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learning Countdown Timer</title>
+    <title>Learning Timer</title>
     <style>
         body { font-family: Arial, sans-serif; }
-        #encouragement { font-size: 1.5em; margin-top: 20px; }
+        #timer { font-size: 48px; }
+        #encouragement { font-size: 24px; margin-top: 20px; }
+        #history { margin-top: 20px; }
     </style>
 </head>
 <body>
-
-    <h1>Learning Countdown Timer</h1>
-    <div id="timer"></div>
+    <h1>Learning Timer</h1>
+    <div id="timer">25:00</div>
+    <button id="startBtn">Start</button>
+    <button id="resetBtn">Reset</button>
     <div id="encouragement"></div>
-    <button id="startButton">Start Learning</button>
-    
-    <script>
-        const animals = ['🐶 Dog', '🐱 Cat', '🐰 Rabbit', '🦖 Dinosaur', '🦄 Unicorn'];
-        const encouragements = [
-            'Keep going!', 
-            'You can do it!', 
-            'Great job!', 
-            'Almost there!', 
-            'You’re learning!'];
-        let totalStudyTime = localStorage.getItem('totalStudyTime') ? parseInt(localStorage.getItem('totalStudyTime')) : 0;
+    <div id="history"></div>
 
-        function updateEncouragement() {
-            const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
-            const randomMessage = encouragements[Math.floor(Math.random() * encouragements.length)];
-            document.getElementById('encouragement').innerText = `${randomAnimal} - ${randomMessage} (${totalStudyTime} min total)`;
+    <script>
+        let timeLeft = 1500; // 25 minutes
+        let timerInterval;
+        const timerDisplay = document.getElementById('timer');
+        const encouragementDisplay = document.getElementById('encouragement');
+        const historyDisplay = document.getElementById('history');
+        let history = [];
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
-        function startTimer(duration) {
-            let timer = duration, minutes, seconds;
-            const timerDiv = document.getElementById('timer');
-            const interval = setInterval(function () {
-                minutes = parseInt(timer / 60, 10);
-                seconds = parseInt(timer % 60, 10);
-                timerDiv.innerText = `${minutes} min ${seconds} sec remaining`;
-
-                if (--timer < 0) {
-                    clearInterval(interval);
-                    updateEncouragement();
-                    totalStudyTime += duration / 60; // Convert seconds to minutes
-                    localStorage.setItem('totalStudyTime', totalStudyTime);
+        function startTimer() {
+            encouragementDisplay.textContent = "Keep going! You can do it!";
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    encouragementDisplay.textContent = "Great job! Take a break!";
+                    history.push(new Date().toLocaleString());
+                    updateHistoryDisplay();
+                } else {
+                    timeLeft--;
+                    updateTimerDisplay();
                 }
             }, 1000);
         }
 
-        document.getElementById('startButton').onclick = function () {
-            const learningDuration = 30 * 60; // 30 minutes in seconds
-            startTimer(learningDuration);
-        };
-    </script>
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 1500;
+            updateTimerDisplay();
+            encouragementDisplay.textContent = "";
+        }
 
+        function updateHistoryDisplay() {
+            historyDisplay.innerHTML = "History:<br>" + history.map(entry => `<li>${entry}</li>`).join('');
+        }
+
+        document.getElementById('startBtn').addEventListener('click', startTimer);
+        document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+        updateTimerDisplay();
+    </script>
 </body>
 </html>
