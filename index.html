@@ -5,66 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learning Countdown Timer</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .timer { font-size: 2em; }
-        .animal { margin: 20px; }
+        body { font-family: Arial, sans-serif; }
+        #encouragement { font-size: 1.5em; margin-top: 20px; }
     </style>
 </head>
 <body>
+
     <h1>Learning Countdown Timer</h1>
-    <div id="countdown" class="timer">00:00:00</div>
-    <div>
-        <button onclick="startTimer()">Start Learning</button>
-        <button onclick="resetTimer()">Reset</button>
-    </div>
-    <div id="animal" class="animal"></div>
-    <div id="message"></div>
-    
-    <h2>Study History</h2>
-    <ul id="history"></ul>
-    
-    <h2>Total Study Time: <span id="totalTime">0</span> minutes</h2>
+    <div id="timer"></div>
+    <div id="encouragement"></div>
+    <button id="startButton">Start Learning</button>
     
     <script>
-        let totalStudyMinutes = 0;
-        let timer;
-        let remainingTime;
-        
-        function startTimer() {
-            remainingTime = 25 * 60; // 25 minutes
-            document.getElementById('history').innerHTML += '<li>Started studying!</li>';
-            updateCountdown();
-            timer = setInterval(updateCountdown, 1000);
+        const animals = ['🐶 Dog', '🐱 Cat', '🐰 Rabbit', '🦖 Dinosaur', '🦄 Unicorn'];
+        const encouragements = [
+            'Keep going!', 
+            'You can do it!', 
+            'Great job!', 
+            'Almost there!', 
+            'You’re learning!'];
+        let totalStudyTime = localStorage.getItem('totalStudyTime') ? parseInt(localStorage.getItem('totalStudyTime')) : 0;
+
+        function updateEncouragement() {
+            const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
+            const randomMessage = encouragements[Math.floor(Math.random() * encouragements.length)];
+            document.getElementById('encouragement').innerText = `${randomAnimal} - ${randomMessage} (${totalStudyTime} min total)`;
         }
 
-        function updateCountdown() {
-            if (remainingTime <= 0) {
-                clearInterval(timer);
-                document.getElementById('message').textContent = "Well done! Time to take a break.";
-                totalStudyMinutes += 25;
-                document.getElementById('totalTime').textContent = totalStudyMinutes;
-                return;
-            }
-            const hours = String(Math.floor(remainingTime / 3600)).padStart(2, '0');
-            const minutes = String(Math.floor((remainingTime % 3600) / 60)).padStart(2, '0');
-            const seconds = String(remainingTime % 60).padStart(2, '0');
-            document.getElementById('countdown').textContent = `${hours}:${minutes}:${seconds}`;
-            remainingTime--;
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            const timerDiv = document.getElementById('timer');
+            const interval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+                timerDiv.innerText = `${minutes} min ${seconds} sec remaining`;
+
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    updateEncouragement();
+                    totalStudyTime += duration / 60; // Convert seconds to minutes
+                    localStorage.setItem('totalStudyTime', totalStudyTime);
+                }
+            }, 1000);
         }
 
-        function resetTimer() {
-            clearInterval(timer);
-            remainingTime = 0;
-            document.getElementById('countdown').textContent = "00:00:00";
-            document.getElementById('message').textContent = "";
-        }
-
-        function getRandomAnimal() {
-            const animals = ["🐶", "🐱", "🐰", "🦁", "🐵"];
-            return animals[Math.floor(Math.random() * animals.length)];
-        }
-
-        document.getElementById('animal').textContent = getRandomAnimal();
+        document.getElementById('startButton').onclick = function () {
+            const learningDuration = 30 * 60; // 30 minutes in seconds
+            startTimer(learningDuration);
+        };
     </script>
+
 </body>
 </html>
